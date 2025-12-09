@@ -42,20 +42,18 @@ export async function GET(req: NextRequest) {
   try {
     const authClient = await getAuthClient(true);
 
-    if (authClient === null) {
+    if (!authClient) {
       throw new Error("Failed to initialize the External Account Client");
     }
 
     const bigquery = new BigQuery({
-      GCP_PROJECT_ID,
-      authClient,
+      projectId: GCP_PROJECT_ID,
+      authClient: authClient as any,
     });
 
-    const query = `SELECT * FROM `vercel-oicd.test.book` LIMIT 1`;
+    const query = "SELECT * FROM `vercel-oicd.test.book` LIMIT 1";
     const [job] = await bigquery.createQueryJob({
       query,
-      params,
-      types: { office_code: "INT64" },
     });
     const [rows] = await job.getQueryResults();
     console.log("Query result:", rows);
